@@ -12,7 +12,6 @@ function App() {
         <h1 className="text-3xl font-bold mb-4">Menu</h1>
         <ul>
           <li className="mb-4"><a href="#" className="text-2xl hover:underline">Dashboard</a></li>
-          <li className="mb-4"><a href="#" className="text-2xl hover:underline"></a></li>
           <li className="mb-4"><a href="#" className="text-2xl hover:underline">Setting</a></li>
         </ul>
       </div>
