@@ -95,7 +95,6 @@ function BME280Sensor() {
     responsive: true,
     plugins: {
       legend: { position: "top" },
-      title: { display: true, text: "Temperature and Humidity" },
     },
   };
 
@@ -119,13 +118,14 @@ function BME280Sensor() {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">เซ็นเซอร์ BME280</h2>
-      <div className="h-48">
+    <div className="font-kanit bg-white  shadow-md rounded-lg" style={{ paddingTop:'10px',paddingLeft:'20px',paddingRight:'10px',paddingBottom:'20px'}}> {/* กำหนดความกว้างเป็น full */}
+      <h2 className="text-xl text-green-20 ">BME280 Sensor</h2>
+      <h2 className="text-xl font-bold text-black mb-5">วัดอุณหภูมิ และ ความชื้นในอากาศ</h2>
+      <div className=""style={{width:'450px',height:'200px'}}> {/* กำหนดความสูงของกราฟ */}
         <Line data={lineData} options={lineOptions} />
       </div>
-      <div className="flex justify-around mt-4">
-        <div className="relative h-36 w-36">
+      <div className="flex justify-around ">
+        <div className="relative h-36 w-36"> {/* กำหนดขนาดของ Doughnut */}
           <Doughnut
             data={doughnutData(
               sensorData.latestTemperature,
@@ -138,7 +138,7 @@ function BME280Sensor() {
             <p className="text-lg font-bold">{sensorData.latestTemperature}°C</p>
           </div>
         </div>
-        <div className="relative h-36 w-36">
+        <div className="relative h-36 w-36"> {/* กำหนดขนาดของ Doughnut */}
           <Doughnut
             data={doughnutData(
               sensorData.latestHumidity,

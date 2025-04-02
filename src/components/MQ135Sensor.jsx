@@ -8,7 +8,7 @@ const lineData = {
   labels: ['15:41:30', '15:42:00', '15:42:30', '15:43:00', '15:43:30', '15:44:00', '15:44:30', '15:45:00'],
   datasets: [
     {
-      label: 'Air Quality',
+      label: 'SO2 Levels',
       data: [1890, 1895, 1900, 1895, 1890, 1895, 1900, 1895],
       borderColor: 'rgb(255, 99, 132)',
       backgroundColor: 'rgba(255, 99, 132, 0.5)',
@@ -36,7 +36,7 @@ const options = {
     },
     title: {
       display: true,
-      text: 'Air Quality',
+      text: 'SO2 Levels',
     },
   },
 };
