@@ -29,8 +29,6 @@ function MQ131Sensor() {
             second: "2-digit",
     })
   ),
-            O3: data.map((item) => item.o3 ?? 0), // ป้องกัน undefined
-
             O3: data
               .slice()
               .map((item) => item.o3 ?? 0), // Reverse O3 data to match labels
@@ -57,7 +55,7 @@ function MQ131Sensor() {
     datasets: [
       {
         label: "Ozone Level",
-        data: sensorData.CO,
+        data: sensorData.O3,
         borderColor: "rgb(255, 99, 132)",
         backgroundColor: "rgba(255, 99, 132, 0.5)",
       },

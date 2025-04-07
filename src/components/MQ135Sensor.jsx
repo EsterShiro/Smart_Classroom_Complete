@@ -47,7 +47,6 @@ function MQ135Sensor() {
                   second: "2-digit",
                 })
               ),
-            SO2: data.map((item) => item.so2 ?? 0), // ป้องกัน undefined
 
             SO2: data
               .slice()
@@ -75,7 +74,7 @@ function MQ135Sensor() {
     datasets: [
       {
         label: "SO2 Level",
-        data: sensorData.CO,
+        data: sensorData.SO2,
         borderColor: "rgb(255, 99, 132)",
         backgroundColor: "rgba(255, 99, 132, 0.5)",
       },

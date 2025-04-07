@@ -49,7 +49,7 @@ function MQ7Sensor() {
               ),
             CO: data
               .slice()
-              .map((item) => item.co ?? 0), // Reverse CO data to match labels
+              .map((item) => item.co ?? 0), 
           };
 
           setSensorData(updatedData);

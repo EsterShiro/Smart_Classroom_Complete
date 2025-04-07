@@ -41,7 +41,6 @@ function SDS011Sensor() {
           const updatedData = {
             labels: data
               .slice()
-              .reverse()
               .map((item) =>
                 new Date(item.timestamp).toLocaleTimeString("th-TH", {
                   hour: "2-digit",
@@ -49,16 +48,12 @@ function SDS011Sensor() {
                   second: "2-digit",
                 })
               ),
-            PM25: data.map((item) => item.pm25 ?? 0), // ป้องกัน undefined
-            PM10: data.map((item) => item.pm10 ?? 0), // ป้องกัน undefined
 
             PM25: data
               .slice()
-              .reverse()
               .map((item) => item.pm25 ?? 0), // Reverse PM2.5 data to match labels
             PM10: data
               .slice()
-              .reverse()
               .map((item) => item.pm10 ?? 0), // Reverse PM10 data to match labels
           };
 
@@ -83,13 +78,13 @@ function SDS011Sensor() {
     datasets: [
       {
         label: "PM2.5",
-        data: sensorData.CO,
+        data: sensorData.PM25,
         borderColor: "rgb(255, 99, 132)",
         backgroundColor: "rgba(255, 99, 132, 0.5)",
       },
       {
         label: "PM10",
-        data: sensorData.SO2,
+        data: sensorData.PM10,
         borderColor: "rgb(53, 162, 235)",
         backgroundColor: "rgba(53, 162, 235, 0.5)",
       },
