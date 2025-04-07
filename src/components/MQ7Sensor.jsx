@@ -1,17 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import React, { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
-
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function MQ7Sensor() {
   const [sensorData, setSensorData] = useState({
-    labels:[],
+    labels: [],
+    CO: [],
   });
 
   useEffect(() => {
-    const fetchData = async () =>  {
+    const fetchData = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/mq7");
         const data = await response.json();
@@ -20,15 +39,17 @@ function MQ7Sensor() {
         if (data && data.length > 0) {
           const updatedData = {
             labels: data
-            .slice()
-            .reverse()
-            .map((item) =>
-            new Date(item.timestamp).toLocaleTimeString("th-TH", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-    })
-  ),
+              .slice()
+              .map((item) =>
+                new Date(item.timestamp).toLocaleTimeString("th-TH", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+              ),
+            CO: data
+              .slice()
+              .map((item) => item.co ?? 0), // Reverse CO data to match labels
           };
 
           setSensorData(updatedData);
@@ -66,15 +87,26 @@ function MQ7Sensor() {
     },
   };
 
-
   return (
-    <div className="font-kanit bg-white rounded-lg shadow-md"style={{paddingTop:'10px',paddingLeft:'20px',paddingRight:'10px',marginBottom:'230px'}}>
+    <div
+      className="font-kanit bg-white rounded-lg shadow-md"
+      style={{
+        paddingTop: "10px",
+        paddingLeft: "20px",
+        paddingRight: "10px",
+        marginBottom: "230px",
+      }}
+    >
       <h2 className="text-xl text-green-20">MQ7 Sensor</h2>
-      <h2 className="text-xl font-bold text-black">ตรวจวัดก๊าซคาร์บอนมอนอกไซด์ (CO)</h2>
-      <div className=""style={{width:'500px',height:'130px',paddingLeft:'100px'}}>
+      <h2 className="text-xl font-bold text-black">
+        ตรวจวัดก๊าซคาร์บอนมอนอกไซด์ (CO)
+      </h2>
+      <div
+        className=""
+        style={{ width: "500px", height: "130px", paddingLeft: "100px" }}
+      >
         <Line data={lineData} options={lineOptions} />
       </div>
-      
     </div>
   );
 }

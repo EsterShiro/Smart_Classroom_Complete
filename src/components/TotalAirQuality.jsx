@@ -1,38 +1,86 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
+import image1 from "../assets/images/Smiling Face Emoji with Blushed Cheeks.png";
+import image2 from "../assets/images/Neutral Face Emoji.png";
+import image3 from "../assets/images/Very Sad Emoji.png";
 
-const AirQualityDisplay = ({ aqiValue }) => {
+const AirQualityDisplay = () => {
+  const [latestAqi, setLatestAqi] = useState(null);
+
+  useEffect(() => {
+    // ดึงข้อมูล AQI จาก API
+    const fetchAQI = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/aqi");
+        const data = await response.json();
+        setLatestAqi(data[data.length - 1]); // เก็บเฉพาะค่าล่าสุด
+      } catch (error) {
+        console.error("Failed to fetch AQI data:", error);
+      }
+    };
+
+    fetchAQI();
+  }, []);
+
+  if (!latestAqi) {
+    return <p>Loading...</p>; // แสดงข้อความ Loading ขณะรอข้อมูล
+  }
+
   let qualityLevel;
-  let emoji;
+  let imageSrc;
   let description;
-  let bgColorClass = 'bg-green-200'; // Default ดี
+  let textColor; // ตัวแปรสำหรับเก็บสีของข้อความ
 
-  if (aqiValue <= 50) {
-    qualityLevel = 'ดี';
-    emoji = '😊';
-    description = 'คุณภาพอากาศดีมาก';
-    bgColorClass = 'bg-green-200';
-  } else if (aqiValue <= 100) {
-    qualityLevel = 'ปานกลาง';
-    emoji = '😐';
-    description = 'คุณภาพอากาศปานกลาง';
-    bgColorClass = 'bg-yellow-200';
+  if (latestAqi.aqiValue <= 50) {
+    textColor = "green";
+    qualityLevel = "ดี";
+    // สีเขียวสำหรับคุณภาพดี
+    imageSrc = image1;
+    description = "คุณภาพอากาศดีมาก";
+  } else if (latestAqi.aqiValue <= 100) {
+    qualityLevel = "ปานกลาง";
+    imageSrc = image2;
+    description = "คุณภาพอากาศปานกลาง";
+    textColor = "orange"; // สีเหลืองสำหรับคุณภาพปานกลาง
   } else {
-    qualityLevel = 'แย่';
-    emoji = '😟';
-    description = 'คุณภาพอากาศไม่ดีต่อสุขภาพ';
-    bgColorClass = 'bg-red-200';
+    qualityLevel = "แย่";
+    imageSrc = image3;
+    description = "คุณภาพอากาศไม่ดีต่อสุขภาพ";
+    textColor = "red"; // สีแดงสำหรับคุณภาพแย่
   }
 
   return (
-    <div className={`rounded-md shadow-md p-4 ${bgColorClass}`}>
-      <h2 className="text-xl font-bold mb-2">คุณภาพอากาศ</h2>
-      <div className="flex items-center space-x-4">
-        <span className="text-3xl">{emoji}</span>
-        <div>
-          <p className="font-semibold">{qualityLevel}</p>
-          <p className="text-gray-600">{description}</p>
-          <p className="text-sm text-gray-500">ค่า AQI: {aqiValue}</p>
-        </div>
+    <div
+      className={"font-kanit rounded-md shadow-md bg-white"}
+      style={{
+        paddingTop: "10px",
+        paddingLeft: "20px",
+        paddingRight: "96px",
+        paddingBottom: "30px",
+        border: "1px solid #ddd",
+      }}
+    >
+      <div>
+        <h2 className="text-xl text-green-20">Total Air Quality</h2>
+        <h2 className="text-xl font-bold text-black mb-10">
+          สภาพอากาศในห้องเรียนโดยรวม
+        </h2>
+        <img
+          src={imageSrc}
+          alt={null}
+          className=""
+          style={{
+            marginBottom: "60px",
+            marginLeft: "130px",
+            width: "200px",
+            height: "200px",
+          }}
+        />
+        <h1 className=""style={{fontSize: 27,fontWeight: "bold",marginLeft:'90px'}}>
+            ระดับคุณภาพ:{" "}
+          <span style={{color: textColor,}}>
+            {qualityLevel}
+          </span>
+        </h1>
       </div>
     </div>
   );

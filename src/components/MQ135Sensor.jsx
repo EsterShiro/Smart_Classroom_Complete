@@ -1,55 +1,113 @@
-import React from 'react';
-import { Line, Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import React, { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
-
-const lineData = {
-  labels: ['15:41:30', '15:42:00', '15:42:30', '15:43:00', '15:43:30', '15:44:00', '15:44:30', '15:45:00'],
-  datasets: [
-    {
-      label: 'SO2 Levels',
-      data: [1890, 1895, 1900, 1895, 1890, 1895, 1900, 1895],
-      borderColor: 'rgb(255, 99, 132)',
-      backgroundColor: 'rgba(255, 99, 132, 0.5)',
-      fill: true,
-    },
-  ],
-};
-
-const barData = {
-  labels: ['15:41:30', '15:42:00', '15:42:30', '15:43:00', '15:43:30', '15:44:00', '15:44:30', '15:45:00'],
-  datasets: [
-    {
-      label: 'Air Quality',
-      data: [1890, 1895, 1900, 1895, 1890, 1895, 1900, 1895],
-      backgroundColor: 'rgba(54, 162, 235, 0.5)',
-    },
-  ],
-};
-
-const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top',
-    },
-    title: {
-      display: true,
-      text: 'SO2 Levels',
-    },
-  },
-};
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function MQ135Sensor() {
+  const [sensorData, setSensorData] = useState({
+    labels: [],
+    SO2:[],
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/mq135");
+        const data = await response.json();
+        console.log("Data from API:", data); // Debugging
+
+        if (data && data.length > 0) {
+          const updatedData = {
+            labels: data
+              .slice()
+              .map((item) =>
+                new Date(item.timestamp).toLocaleTimeString("th-TH", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+              ),
+            SO2: data.map((item) => item.so2 ?? 0), // ป้องกัน undefined
+
+            SO2: data
+              .slice()
+              .map((item) => item.so2 ?? 0), // Reverse SO2 data to match labels
+          };
+
+          setSensorData(updatedData);
+          console.log("Updated sensorData:", updatedData); // Debugging
+        } else {
+          console.error("No data received from API");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+    const intervalId = setInterval(fetchData, 60000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const lineData = {
+    labels: sensorData.labels,
+    datasets: [
+      {
+        label: "SO2 Level",
+        data: sensorData.CO,
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+    ],
+  };
+
+  const lineOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: "top" },
+    },
+  };
+
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">เซ็นเซอร์ MQ135</h2>
-      <div className="h-48">
-        <Line data={lineData} options={options} />
-      </div>
-      <div className="h-48 mt-4">
-        <Bar data={barData} options={options} />
+    <div
+      className="font-kanit bg-white rounded-lg shadow-md"
+      style={{
+        paddingTop: "10px",
+        paddingLeft: "20px",
+        paddingRight: "10px",
+        marginBottom: "180px",
+      }}
+    >
+      <h2 className="text-xl text-green-20">MQ135 Sensor</h2>
+      <h2 className="text-xl font-bold text-black">
+      ค่าซัลเฟอร์ไดออกไซด์ (SO2)
+      </h2>
+      <div
+        className=""
+        style={{ width: "450px", height: "180px", paddingLeft: "50px" }}
+      >
+        <Line data={lineData} options={lineOptions} />
       </div>
     </div>
   );

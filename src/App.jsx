@@ -21,8 +21,8 @@ function App() {
           <MQ7Sensor />
           <MQ131Sensor />
           <TotalAir/>
-          <SDS011Sensor />
           <MQ135Sensor />
+          <SDS011Sensor />
           <AirQualityIndex />
         </div>
       </div>

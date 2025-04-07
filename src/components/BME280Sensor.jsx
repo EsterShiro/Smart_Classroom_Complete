@@ -43,18 +43,27 @@ function BME280Sensor() {
           const updatedData = {
             labels: data
             .slice()
-            .reverse()
+            
             .map((item) =>
             new Date(item.timestamp).toLocaleTimeString("th-TH", {
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
     })
-  ),
-            temperature: data.map((item) => item.temp ?? 0), // ป้องกัน undefined
-            humidity: data.map((item) => item.humid ?? 0), // ป้องกัน undefined
-            latestTemperature: data[data.length - 1]?.temp ?? 0,
-            latestHumidity: data[data.length - 1]?.humid ?? 0,
+  ),          
+            temperature: data
+              .slice()
+              .map((item) => item.temperature ?? 0),
+
+            humidity: data
+              .slice()
+              .map((item) => item.humidity ?? 0),
+
+            latestTemperature: data
+                [data.length - 1]?.temperature ?? 0,
+
+            latestHumidity: data
+                [data.length - 1]?.humidity ?? 0,
           };
 
           setSensorData(updatedData);

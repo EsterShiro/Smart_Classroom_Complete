@@ -5,9 +5,10 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
 
-function MQ7Sensor() {
+function MQ131Sensor() {
   const [sensorData, setSensorData] = useState({
     labels:[],
+    O3: [],
   });
 
   useEffect(() => {
@@ -21,7 +22,6 @@ function MQ7Sensor() {
           const updatedData = {
             labels: data
             .slice()
-            .reverse()
             .map((item) =>
             new Date(item.timestamp).toLocaleTimeString("th-TH", {
             hour: "2-digit",
@@ -29,6 +29,11 @@ function MQ7Sensor() {
             second: "2-digit",
     })
   ),
+            O3: data.map((item) => item.o3 ?? 0), // ป้องกัน undefined
+
+            O3: data
+              .slice()
+              .map((item) => item.o3 ?? 0), // Reverse O3 data to match labels
           };
 
           setSensorData(updatedData);
@@ -79,4 +84,4 @@ function MQ7Sensor() {
   );
 }
 
-export default MQ7Sensor;
+export default MQ131Sensor;

@@ -1,48 +1,127 @@
-import React from 'react';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import React, { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
-const lineData = {
-  labels: ['15:41:30', '15:42:00', '15:42:30', '15:43:00', '15:43:30', '15:44:00', '15:44:30', '15:45:00'],
-  datasets: [
-    {
-      label: 'PM2.5',
-      data: [12.3, 12.5, 12.7, 12.6, 12.4, 12.5, 12.6, 12.5],
-      borderColor: 'rgb(255, 99, 132)',
-      backgroundColor: 'rgba(255, 99, 132, 0.5)',
-      fill: true,
-    },
-    {
-      label: 'PM10',
-      data: [25.6, 25.8, 26.0, 25.9, 25.7, 25.8, 25.9, 25.8],
-      borderColor: 'rgb(54, 162, 235)',
-      backgroundColor: 'rgba(54, 162, 235, 0.5)',
-      fill: true,
-    },
-  ],
-};
-
-const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top',
-    },
-    title: {
-      display: true,
-      text: 'PM2.5 and PM10 Levels',
-    },
-  },
-};
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function SDS011Sensor() {
+  const [sensorData, setSensorData] = useState({
+    labels: [],
+    PM25: [],
+    PM10: [],
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/sds011");
+        const data = await response.json();
+        console.log("Data from API:", data); // Debugging
+
+        if (data && data.length > 0) {
+          const updatedData = {
+            labels: data
+              .slice()
+              .reverse()
+              .map((item) =>
+                new Date(item.timestamp).toLocaleTimeString("th-TH", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+              ),
+            PM25: data.map((item) => item.pm25 ?? 0), // ป้องกัน undefined
+            PM10: data.map((item) => item.pm10 ?? 0), // ป้องกัน undefined
+
+            PM25: data
+              .slice()
+              .reverse()
+              .map((item) => item.pm25 ?? 0), // Reverse PM2.5 data to match labels
+            PM10: data
+              .slice()
+              .reverse()
+              .map((item) => item.pm10 ?? 0), // Reverse PM10 data to match labels
+          };
+
+          setSensorData(updatedData);
+          console.log("Updated sensorData:", updatedData); // Debugging
+        } else {
+          console.error("No data received from API");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+    const intervalId = setInterval(fetchData, 60000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const lineData = {
+    labels: sensorData.labels,
+    datasets: [
+      {
+        label: "PM2.5",
+        data: sensorData.CO,
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+      {
+        label: "PM10",
+        data: sensorData.SO2,
+        borderColor: "rgb(53, 162, 235)",
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
+      },
+    ],
+  };
+
+  const lineOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: "top" },
+    },
+  };
+
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">เซ็นเซอร์ SDS011</h2>
-      <div className="h-48">
-        <Line data={lineData} options={options} />
+    <div
+      className="font-kanit bg-white rounded-lg shadow-md"
+      style={{
+        paddingTop: "10px",
+        paddingLeft: "20px",
+        paddingRight: "10px",
+        marginBottom: "180px",
+      }}
+    >
+      <h2 className="text-xl text-green-20">SDS011 Sensor</h2>
+      <h2 className="text-xl font-bold text-black">
+      ตรวจค่าฝุ่น PM2.5  และ PM10
+      </h2>
+      <div
+        className=""
+        style={{ width: "500px", height: "180px", paddingLeft: "70px" }}
+      >
+        <Line data={lineData} options={lineOptions} />
       </div>
     </div>
   );
