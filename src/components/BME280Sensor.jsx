@@ -35,35 +35,24 @@ function BME280Sensor() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/bme280");
+        const response = await fetch("http://localhost:5001/api/ModelResult");
         const data = await response.json();
         console.log("Data from API:", data); // Debugging
 
         if (data && data.length > 0) {
+          const recentData = data.slice(-5); // เลือกเฉพาะ 5 ตัวล่าสุด
           const updatedData = {
-            labels: data
-            .slice()
-            
-            .map((item) =>
-            new Date(item.timestamp).toLocaleTimeString("th-TH", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-    })
-  ),          
-            temperature: data
-              .slice()
-              .map((item) => item.temperature ?? 0),
-
-            humidity: data
-              .slice()
-              .map((item) => item.humidity ?? 0),
-
-            latestTemperature: data
-                [data.length - 1]?.temperature ?? 0,
-
-            latestHumidity: data
-                [data.length - 1]?.humidity ?? 0,
+            labels: recentData.map((item) =>
+              new Date(item.timestamp).toLocaleTimeString("th-TH", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })
+            ),
+            temperature: recentData.map((item) => item.temperature ?? 0),
+            humidity: recentData.map((item) => item.humidity ?? 0),
+            latestTemperature: recentData[recentData.length - 1]?.temperature ?? 0,
+            latestHumidity: recentData[recentData.length - 1]?.humidity ?? 0,
           };
 
           setSensorData(updatedData);
@@ -127,14 +116,30 @@ function BME280Sensor() {
   };
 
   return (
-    <div className="font-kanit bg-white  shadow-md rounded-lg" style={{ paddingTop:'10px',paddingLeft:'20px',paddingRight:'10px',paddingBottom:'20px'}}> {/* กำหนดความกว้างเป็น full */}
+    <div
+      className="font-kanit bg-white  shadow-md rounded-lg"
+      style={{
+        paddingTop: "10px",
+        paddingLeft: "20px",
+        paddingRight: "10px",
+        paddingBottom: "20px",
+      }}
+    >
+      {" "}
+      {/* กำหนดความกว้างเป็น full */}
       <h2 className="text-xl text-green-20 ">BME280 Sensor</h2>
-      <h2 className="text-xl font-bold text-black mb-5">วัดอุณหภูมิ และ ความชื้นในอากาศ</h2>
-      <div className=""style={{width:'450px',height:'200px'}}> {/* กำหนดความสูงของกราฟ */}
+      <h2 className="text-xl font-bold text-black mb-5">
+        วัดอุณหภูมิ และ ความชื้นในอากาศ
+      </h2>
+      <div className="" style={{ width: "450px", height: "200px" }}>
+        {" "}
+        {/* กำหนดความสูงของกราฟ */}
         <Line data={lineData} options={lineOptions} />
       </div>
       <div className="flex justify-around ">
-        <div className="relative h-36 w-36"> {/* กำหนดขนาดของ Doughnut */}
+        <div className="relative h-36 w-36">
+          {" "}
+          {/* กำหนดขนาดของ Doughnut */}
           <Doughnut
             data={doughnutData(
               sensorData.latestTemperature,
@@ -144,10 +149,14 @@ function BME280Sensor() {
             options={doughnutOptions}
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-lg font-bold">{sensorData.latestTemperature}°C</p>
+            <p className="text-lg font-bold">
+              {sensorData.latestTemperature}°C
+            </p>
           </div>
         </div>
-        <div className="relative h-36 w-36"> {/* กำหนดขนาดของ Doughnut */}
+        <div className="relative h-36 w-36">
+          {" "}
+          {/* กำหนดขนาดของ Doughnut */}
           <Doughnut
             data={doughnutData(
               sensorData.latestHumidity,

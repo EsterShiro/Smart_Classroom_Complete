@@ -26,35 +26,29 @@ ChartJS.register(
 function SDS011Sensor() {
   const [sensorData, setSensorData] = useState({
     labels: [],
-    PM25: [],
+    PM2_5: [],
     PM10: [],
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/sds011");
+        const response = await fetch("http://localhost:5001/api/ModelResult");
         const data = await response.json();
         console.log("Data from API:", data); // Debugging
 
         if (data && data.length > 0) {
+          const recentData = data.slice(-5);
           const updatedData = {
-            labels: data
-              .slice()
-              .map((item) =>
-                new Date(item.timestamp).toLocaleTimeString("th-TH", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })
-              ),
-
-            PM25: data
-              .slice()
-              .map((item) => item.pm25 ?? 0), // Reverse PM2.5 data to match labels
-            PM10: data
-              .slice()
-              .map((item) => item.pm10 ?? 0), // Reverse PM10 data to match labels
+            labels: recentData.map((item) =>
+              new Date(item.timestamp).toLocaleTimeString("th-TH", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })
+            ),
+            PM2_5: recentData.map((item) => item.pm2_5 ?? 0),
+            PM10: recentData.map((item) => item.pm10 ?? 0),
           };
 
           setSensorData(updatedData);
@@ -78,7 +72,7 @@ function SDS011Sensor() {
     datasets: [
       {
         label: "PM2.5",
-        data: sensorData.PM25,
+        data: sensorData.PM2_5,
         borderColor: "rgb(255, 99, 132)",
         backgroundColor: "rgba(255, 99, 132, 0.5)",
       },
@@ -110,7 +104,7 @@ function SDS011Sensor() {
     >
       <h2 className="text-xl text-green-20">SDS011 Sensor</h2>
       <h2 className="text-xl font-bold text-black">
-      ตรวจค่าฝุ่น PM2.5  และ PM10
+        ตรวจค่าฝุ่น PM2.5 และ PM10
       </h2>
       <div
         className=""

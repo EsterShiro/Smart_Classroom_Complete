@@ -1,37 +1,55 @@
-import React, { useEffect, useState } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import React, { useEffect, useState } from "react";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
-
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function MQ131Sensor() {
   const [sensorData, setSensorData] = useState({
-    labels:[],
-    O3: [],
+    labels: [],
+    ozone: [],
   });
 
   useEffect(() => {
-    const fetchData = async () =>  {
+    const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/mq131");
+        const response = await fetch("http://localhost:5001/api/ModelResult");
         const data = await response.json();
         console.log("Data from API:", data); // Debugging
 
         if (data && data.length > 0) {
           const updatedData = {
             labels: data
-            .slice()
-            .map((item) =>
-            new Date(item.timestamp).toLocaleTimeString("th-TH", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-    })
-  ),
-            O3: data
-              .slice()
-              .map((item) => item.o3 ?? 0), // Reverse O3 data to match labels
+              .slice(-5) // Keep only the last 5 entries
+              .map((item) =>
+                new Date(item.timestamp).toLocaleTimeString("th-TH", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+              ),
+            ozone: data
+              .slice(-5) // Keep only the last 5 entries
+              .map((item) => item.ozone ?? 0),
           };
 
           setSensorData(updatedData);
@@ -55,7 +73,7 @@ function MQ131Sensor() {
     datasets: [
       {
         label: "Ozone Level",
-        data: sensorData.O3,
+        data: sensorData.ozone,
         borderColor: "rgb(255, 99, 132)",
         backgroundColor: "rgba(255, 99, 132, 0.5)",
       },
@@ -69,15 +87,27 @@ function MQ131Sensor() {
     },
   };
 
-
   return (
-    <div className="font-kanit bg-white rounded-lg shadow-md"style={{paddingTop:'10px',paddingLeft:'20px',paddingRight:'10px',paddingBottom:'20px',marginLeft:'512px',marginTop:'235px',position:'absolute'}}>
+    <div
+      className="font-kanit bg-white rounded-lg shadow-md"
+      style={{
+        paddingTop: "10px",
+        paddingLeft: "20px",
+        paddingRight: "10px",
+        paddingBottom: "20px",
+        marginLeft: "512px",
+        marginTop: "235px",
+        position: "absolute",
+      }}
+    >
       <h2 className="text-xl text-green-20">MQ131 Sensor</h2>
       <h2 className="text-xl font-bold text-black">ตรวจวัดก๊าซโอโซน (O3)</h2>
-      <div className=""style={{width:'500px',height:'130px',paddingLeft:'100px'}}>
+      <div
+        className=""
+        style={{ width: "500px", height: "130px", paddingLeft: "100px" }}
+      >
         <Line data={lineData} options={lineOptions} />
       </div>
-      
     </div>
   );
 }

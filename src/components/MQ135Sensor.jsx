@@ -32,14 +32,14 @@ function MQ135Sensor() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/mq135");
+        const response = await fetch("http://localhost:5001/api/ModelResult");
         const data = await response.json();
         console.log("Data from API:", data); // Debugging
 
         if (data && data.length > 0) {
           const updatedData = {
             labels: data
-              .slice()
+              .slice(-5)
               .map((item) =>
                 new Date(item.timestamp).toLocaleTimeString("th-TH", {
                   hour: "2-digit",
@@ -49,7 +49,7 @@ function MQ135Sensor() {
               ),
 
             SO2: data
-              .slice()
+              .slice(-5)
               .map((item) => item.so2 ?? 0), // Reverse SO2 data to match labels
           };
 

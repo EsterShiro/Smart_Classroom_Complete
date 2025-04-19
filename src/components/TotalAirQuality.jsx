@@ -5,14 +5,17 @@ import image3 from "../assets/images/Very Sad Emoji.png";
 
 const AirQualityDisplay = () => {
   const [latestAqi, setLatestAqi] = useState(null);
+  const [aqiClass, setAqiClass] = useState(null);
 
   useEffect(() => {
     // ดึงข้อมูล AQI จาก API
     const fetchAQI = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/aqi");
+        const response = await fetch("http://localhost:5001/api/ModelResult");
         const data = await response.json();
-        setLatestAqi(data[data.length - 1]); // เก็บเฉพาะค่าล่าสุด
+        const latestData = data[data.length - 1]; // เก็บเฉพาะค่าล่าสุด
+        setLatestAqi(latestData);
+        setAqiClass(latestData.aqi_class); // เก็บค่า aqi_class
       } catch (error) {
         console.error("Failed to fetch AQI data:", error);
       }
@@ -28,24 +31,23 @@ const AirQualityDisplay = () => {
   let qualityLevel;
   let imageSrc;
   let description;
-  let textColor; // ตัวแปรสำหรับเก็บสีของข้อความ
+  let textColor;
 
-  if (latestAqi.aqiValue <= 50) {
+  if (aqiClass <= 0) {
     textColor = "green";
     qualityLevel = "ดี";
-    // สีเขียวสำหรับคุณภาพดี
     imageSrc = image1;
     description = "คุณภาพอากาศดีมาก";
-  } else if (latestAqi.aqiValue <= 100) {
+  } else if (aqiClass <= 2) {
     qualityLevel = "ปานกลาง";
     imageSrc = image2;
     description = "คุณภาพอากาศปานกลาง";
-    textColor = "orange"; // สีเหลืองสำหรับคุณภาพปานกลาง
+    textColor = "orange";
   } else {
     qualityLevel = "แย่";
     imageSrc = image3;
     description = "คุณภาพอากาศไม่ดีต่อสุขภาพ";
-    textColor = "red"; // สีแดงสำหรับคุณภาพแย่
+    textColor = "red";
   }
 
   return (
@@ -66,7 +68,7 @@ const AirQualityDisplay = () => {
         </h2>
         <img
           src={imageSrc}
-          alt={null}
+          alt={description}
           className=""
           style={{
             marginBottom: "60px",
@@ -75,12 +77,17 @@ const AirQualityDisplay = () => {
             height: "200px",
           }}
         />
-        <h1 className=""style={{fontSize: 27,fontWeight: "bold",marginLeft:'90px'}}>
-            ระดับคุณภาพ:{" "}
-          <span style={{color: textColor,}}>
-            {qualityLevel}
-          </span>
+        <h1
+          className=""
+          style={{ fontSize: 27, fontWeight: "bold", marginLeft: "90px" }}
+        >
+          ระดับคุณภาพ: <span style={{ color: textColor }}>{qualityLevel}</span>
         </h1>
+        <h2
+          className="text-lg font-bold text-black mt-5"
+          style={{ marginLeft: "90px" }}
+        >
+        </h2>
       </div>
     </div>
   );

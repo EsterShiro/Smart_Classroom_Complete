@@ -32,24 +32,22 @@ function MQ7Sensor() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/mq7");
+        const response = await fetch("http://localhost:5001/api/ModelResult");
         const data = await response.json();
         console.log("Data from API:", data); // Debugging
 
         if (data && data.length > 0) {
+          // Keep only the last 5 entries
+          const recentData = data.slice(-5);
           const updatedData = {
-            labels: data
-              .slice()
-              .map((item) =>
-                new Date(item.timestamp).toLocaleTimeString("th-TH", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })
-              ),
-            CO: data
-              .slice()
-              .map((item) => item.co ?? 0), 
+            labels: recentData.map((item) =>
+              new Date(item.timestamp).toLocaleTimeString("th-TH", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })
+            ),
+            CO: recentData.map((item) => item.co ?? 0),
           };
 
           setSensorData(updatedData);

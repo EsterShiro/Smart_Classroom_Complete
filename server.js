@@ -1,120 +1,74 @@
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require("express");
+const mongoose = require("mongoose");
 
 const app = express();
-const port = 5000;
+const port = 5001;
 
-const cors = require('cors');
+const cors = require("cors");
 
 app.use(cors());
 
-mongoose.connect('mongodb://localhost:27017/CPE495', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-const bme280Schema = new mongoose.Schema({
-    timestamp: { type: Date, required: true }, // ต้องเป็น Date
-    temperature: { type: Number, required: true }, // ต้องเป็น Number
-    humidity: { type: Number, required: true }, // ต้องเป็น Number
-  });
-
-const BME280 = mongoose.model('BME280', bme280Schema);
-
-app.get('/api/bme280', async (req, res) => {
-  try {
-    const data = await BME280.find().sort({ timestamp: 1 });
-    res.json(data); 
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+// เชื่อมต่อ MongoDB Atlas
+mongoose.connect(
+  "mongodb+srv://bank:bank@aqi-senors-rf.xk5y8sk.mongodb.net/CPE495final",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
   }
-});
+);
 
-const sds011Schema = new mongoose.Schema({
+// กำหนด Schema
+const Model_ResultSchema = new mongoose.Schema({
   timestamp: { type: Date, required: true },
-  pm25: { type: Number, required: true },
-  pm10: { type: Number, required: true },
+  date: { type: String, required: true },
+  time: { type: String, required: true },
+  sensor_data: {
+    temperature: { type: Number, required: true },
+    humidity: { type: Number, required: true },
+    co: { type: Number, required: true },
+    so2: { type: Number, required: true },
+    ozone: { type: Number, required: true },
+    pm2_5: { type: Number, required: true },
+    pm10: { type: Number, required: true },
+  },
+  prediction:{
+    aqi_class: {type: Number, required: true},
+  },
 });
 
-const SDS011 = mongoose.model('SDS011', sds011Schema);
+// สร้าง Model
+const ModelResult = mongoose.model("ModelResult", Model_ResultSchema);
 
-app.get('/api/sds011', async (req, res) => {
+// API Endpoint
+app.get("/api/ModelResult", async (req, res) => {
   try {
-    const data = await SDS011.find().sort({ timestamp: 1 });
-    res.json(data);
+    // ดึงข้อมูลจาก MongoDB และกรองเฉพาะฟิลด์ที่ต้องการ
+    const data = await ModelResult.find()
+      .sort({ timestamp: 1 }) // เรียงตาม timestamp
+      .select(
+        "timestamp sensor_data.temperature sensor_data.humidity sensor_data.co sensor_data.so2 sensor_data.ozone sensor_data.pm2_5 sensor_data.pm10 prediction.aqi_class"
+      ); // เลือกเฉพาะฟิลด์ที่ต้องการ
+
+    // แปลงข้อมูลให้อยู่ในรูปแบบที่ต้องการ
+    const formattedData = data.map((item) => ({
+      timestamp: item.timestamp,
+      temperature: item.sensor_data.temperature,
+      humidity: item.sensor_data.humidity,
+      co: item.sensor_data.co,
+      so2: item.sensor_data.so2,
+      ozone: item.sensor_data.ozone,
+      pm2_5: item.sensor_data.pm2_5,
+      pm10: item.sensor_data.pm10,
+      aqi_class: item.prediction.aqi_class,
+    }));
+
+    res.json(formattedData);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-const mq7Schema = new mongoose.Schema({
-  timestamp: { type: Date, required: true },
-  co: { type: Number, required: true },
-});
-
-const MQ7 = mongoose.model('MQ7', mq7Schema);
-
-app.get('/api/mq7', async (req, res) => {
-  try {
-    const data = await MQ7.find().sort({ timestamp: 1 });
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-const mq135Schema = new mongoose.Schema({
-  timestamp: { type: Date, required: true },
-  so2: { type: Number, required: true },
-});
-
-const MQ135 = mongoose.model('MQ135', mq135Schema);
-
-app.get('/api/mq135', async (req, res) => {
-  try {
-    const data = await MQ135.find().sort({ timestamp: 1 });
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-const mq131Schema = new mongoose.Schema({
-  timestamp: { type: Date, required: true },
-  o3: { type: Number, required: true },
-});
-
-const MQ131 = mongoose.model('MQ131', mq131Schema);
-
-app.get('/api/mq131', async (req, res) => {
-  try {
-    const data = await MQ131.find().sort({ timestamp: 1 });
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-const AQISchema = new mongoose.Schema({
-  aqiValue: Number,
-  timestamp: { type: Date, required: true }, // เพิ่มฟิลด์ timestamp
-});
-
-const AQI = mongoose.model('AQI', AQISchema);
-
-// สร้าง API Endpoint
-app.get('/api/aqi', async (req, res) => {
-  try {
-    const aqiData = await AQI.find().sort({ timestamp: 1 }); // เรียงตามเวลาล่าสุด (timestamp)
-    res.json(aqiData); // ส่งคืนข้อมูลทั้งหมดในรูปแบบอาร์เรย์
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch AQI data' });
-  }
-});
-
-
-
-
+// เริ่มต้นเซิร์ฟเวอร์
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
