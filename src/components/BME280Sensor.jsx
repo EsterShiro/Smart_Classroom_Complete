@@ -35,7 +35,7 @@ function BME280Sensor() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5001/api/ModelResult");
+        const response = await fetch("http://localhost:5001/api/modelresults_engvers");
         const data = await response.json();
         console.log("Data from API:", data); // Debugging
 

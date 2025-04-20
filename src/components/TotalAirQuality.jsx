@@ -11,7 +11,7 @@ const AirQualityDisplay = () => {
     // ดึงข้อมูล AQI จาก API
     const fetchAQI = async () => {
       try {
-        const response = await fetch("http://localhost:5001/api/ModelResult");
+        const response = await fetch("http://localhost:5001/api/modelresults_engvers");
         const data = await response.json();
         const latestData = data[data.length - 1]; // เก็บเฉพาะค่าล่าสุด
         setLatestAqi(latestData);
