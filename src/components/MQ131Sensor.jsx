@@ -27,6 +27,7 @@ function MQ131Sensor() {
   const [sensorData, setSensorData] = useState({
     labels: [],
     ozone: [],
+    no2: [],
   });
 
   useEffect(() => {
@@ -50,6 +51,9 @@ function MQ131Sensor() {
             ozone: data
               .slice(-5) // Keep only the last 5 entries
               .map((item) => item.ozone ?? 0),
+            no2: data
+              .slice(-5) // Keep only the last 5 entries
+              .map((item) => item.no2 ?? 0), // Reverse NO2 data to match labels
           };
 
           setSensorData(updatedData);
@@ -76,6 +80,12 @@ function MQ131Sensor() {
         data: sensorData.ozone,
         borderColor: "rgb(255, 99, 132)",
         backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+      {
+        label: "NO2 Level",
+        data: sensorData.no2,
+        borderColor: "rgb(54, 162, 235)",
+        backgroundColor: "rgba(54, 162, 235, 0.5)",
       },
     ],
   };
